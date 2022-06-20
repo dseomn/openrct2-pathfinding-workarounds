@@ -14,7 +14,15 @@
  * limitations under the License.
  */
 
+const PLUGIN_NAME = 'Pathfinding Workarounds';
+
+var enabled = false;
+
 function helpLostGuests() {
+  if (!enabled) {
+    return;
+  }
+
   var guestsRemoved = 0;
   map.getAllEntities('guest').forEach(function(guest) {
     if (!guest.isInPark || !guest.isLost) {
@@ -35,12 +43,36 @@ function helpLostGuests() {
   console.log('Removed ' + guestsRemoved + ' lost guests.');
 }
 
+function showSettings() {
+  ui.openWindow({
+    classification: PLUGIN_NAME,
+    width: 220,
+    height: 40,
+    title: PLUGIN_NAME,
+    widgets: [
+      {
+        type: 'checkbox',
+        x: 10,
+        y: 20,
+        width: 200,
+        height: 10,
+        text: 'Enable pathfinding workarounds',
+        isChecked: enabled,
+        onChange: function(isChecked) { enabled = isChecked; },
+      },
+    ],
+  });
+}
+
 function main() {
   context.subscribe('interval.day', helpLostGuests);
+  if (typeof ui !== 'undefined') {
+    ui.registerMenuItem(PLUGIN_NAME, showSettings);
+  }
 }
 
 registerPlugin({
-  name: 'Pathfinding Workarounds',
+  name: PLUGIN_NAME,
   version: '0',
   authors: ['David Mandelberg'],
   type: 'remote',
